@@ -22,7 +22,12 @@ const endpoints = (process.env.ENDPOINTS || "")
 const endpointMap = {
   gpt4: endpoints[0],
   cohere: endpoints[1],
-  llama: endpoints[2]
+  llama: endpoints[2],
+  deepseek: endpoints[3],
+  nemotron: endpoints[4],
+  gemma: endpoints[5],
+  qwen: endpoints[6],
+  glm: endpoints[7]
 };
 
 // root route
