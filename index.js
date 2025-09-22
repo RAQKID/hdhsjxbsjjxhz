@@ -26,7 +26,8 @@ const endpointMap = {
   deepseek: endpoints[3],
   nemotron: endpoints[4],
   gemma: endpoints[5],
-  qwen: endpoints[6]
+  qwen: endpoints[6],
+  axentra: endpoints[7]
 };
 
 // root route
