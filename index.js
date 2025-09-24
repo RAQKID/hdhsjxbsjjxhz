@@ -27,7 +27,8 @@ const endpointMap = {
   nemotron: endpoints[4],
   gemma: endpoints[5],
   qwen: endpoints[6],
-  axentra: endpoints[7]
+  axentra: endpoints[7],
+  popcat: endpoints[8]
 };
 
 // root route
