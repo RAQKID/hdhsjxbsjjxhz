@@ -28,7 +28,8 @@ const endpointMap = {
   gemma: endpoints[5],
   qwen: endpoints[6],
   axentra: endpoints[7],
-  popcat: endpoints[8]
+  popcat: endpoints[8],
+  grok: endpoints[9]
 };
 
 // root route
