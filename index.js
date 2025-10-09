@@ -29,7 +29,8 @@ const endpointMap = {
   qwen: endpoints[6],
   axentra: endpoints[7],
   popcat: endpoints[8],
-  grok: endpoints[9]
+  grok: endpoints[9],
+  claude: endpoints[10]
 };
 
 // root route
