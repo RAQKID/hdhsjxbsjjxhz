@@ -30,7 +30,8 @@ const endpointMap = {
   axentra: endpoints[7],
   popcat: endpoints[8],
   grok: endpoints[9],
-  claude: endpoints[10]
+  claude: endpoints[10],
+  gpt5: endpoints[11]
 };
 
 // root route
