@@ -44,25 +44,16 @@ app.get("/:model", async (req, res) => {
   const { prompt, key } = req.query;
 
   if (!prompt) {
-    return res.status(400).json({
-      status: false,
-      error: "The server is busy, try again later."
-    });
+    return res.status(400).json({ status: false, error: "Missing prompt" });
   }
 
   if (!key || !keys.includes(key)) {
-    return res.status(403).json({
-      status: false,
-      error: "The server is busy, try again later."
-    });
+    return res.status(403).json({ status: false, error: "Invalid API key" });
   }
 
   const endpoint = endpointMap[model];
   if (!endpoint) {
-    return res.status(404).json({
-      status: false,
-      error: "The server is busy, try again later."
-    });
+    return res.redirect("/");
   }
 
   try {
@@ -72,14 +63,6 @@ app.get("/:model", async (req, res) => {
 
     const response = await fetch(url);
     const data = await response.json();
-
-    // ✅ If the external API itself failed
-    if (!data || data.status === false || data.error) {
-      return res.status(503).json({
-        status: false,
-        error: "The server is busy, try again later."
-      });
-    }
 
     // ✅ Normalize response
     let aiResponse;
@@ -98,17 +81,15 @@ app.get("/:model", async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       status: false,
-      error: "The server is busy, try again later."
+      error: "Error fetching AI response",
+      details: error.message
     });
   }
 });
 
 // catch-all redirect
 app.use((req, res) => {
-  res.status(404).json({
-    status: false,
-    error: "The server is busy, try again later."
-  });
+  res.redirect("/");
 });
 
 app.listen(PORT, () => {
