@@ -64,6 +64,14 @@ app.get("/:model", async (req, res) => {
     const response = await fetch(url);
     const data = await response.json();
 
+    // ✅ Check for explicit endpoint failure
+    if (data?.status === false) {
+      return res.status(503).json({
+        status: false,
+        error: "The server is busy, try again later."
+      });
+    }
+
     // ✅ Normalize response
     let aiResponse;
     if (data?.result && Array.isArray(data.result) && data.result[0]?.response) {
@@ -74,6 +82,20 @@ app.get("/:model", async (req, res) => {
       aiResponse = JSON.stringify(data); // fallback
     }
 
+    // ✅ Detect “busy” responses
+    const busyMessages = [
+      "Rejected: Try again later!",
+      '{"status":true,"result":[{"response":"Rejected: Try again later!"}]}'
+    ];
+
+    if (busyMessages.includes(aiResponse) || /Rejected: Try again later!/i.test(aiResponse)) {
+      return res.status(503).json({
+        status: false,
+        error: "The server is busy, try again later."
+      });
+    }
+
+    // ✅ Successful response
     return res.json({
       status: true,
       result: [{ response: aiResponse }]
@@ -87,7 +109,7 @@ app.get("/:model", async (req, res) => {
   }
 });
 
-// catch-all redirect
+// ✅ catch-all redirect (unchanged)
 app.use((req, res) => {
   res.redirect("/");
 });
