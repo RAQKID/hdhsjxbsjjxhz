@@ -43,17 +43,19 @@ app.get("/:model", async (req, res) => {
   const { model } = req.params;
   const { prompt, key } = req.query;
 
+  // ✅ Check if model exists first
+  const endpoint = endpointMap[model];
+  if (!endpoint) {
+    return res.redirect("/");
+  }
+
+  // Then validate prompt/key
   if (!prompt) {
     return res.status(400).json({ status: false, error: "Missing prompt" });
   }
 
   if (!key || !keys.includes(key)) {
     return res.status(403).json({ status: false, error: "Invalid API key" });
-  }
-
-  const endpoint = endpointMap[model];
-  if (!endpoint) {
-    return res.redirect("/");
   }
 
   try {
@@ -104,7 +106,7 @@ app.get("/:model", async (req, res) => {
   }
 });
 
-// catch-all redirect for invalid routes
+// catch-all redirect for any other routes
 app.use((req, res) => {
   res.redirect("/");
 });
