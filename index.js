@@ -20,7 +20,7 @@ const endpoints = (process.env.ENDPOINTS || "")
 
 // Map route names to endpoints
 const endpointMap = {
-  ai/gpt4: endpoints[0],
+  gpt4: endpoints[0],
   cohere: endpoints[1],
   llama: endpoints[2],
   deepseek: endpoints[3],
@@ -31,7 +31,8 @@ const endpointMap = {
   popcat: endpoints[8],
   grok: endpoints[9],
   claude: endpoints[10],
-  gpt5: endpoints[11]
+  gpt5: endpoints[11],
+  image-stable: endpoints[12]
 };
 
 // root route
