@@ -69,7 +69,7 @@ app.get("/:model", async (req, res) => {
     const response = await fetch(url);
     const data = await response.json();
 
-    // ✅ Handle case when API explicitly returns { status: false }
+    // ✅ If API explicitly returns status false
     if (data.status === false) {
       return res.status(503).json({
         status: false,
@@ -77,7 +77,7 @@ app.get("/:model", async (req, res) => {
       });
     }
 
-    // Normalize response format
+    // ✅ Normalize AI response
     let aiResponse;
     if (data?.result && Array.isArray(data.result) && data.result[0]?.response) {
       aiResponse = data.result[0].response;
@@ -109,7 +109,20 @@ app.get("/:model", async (req, res) => {
       result: [{ response: aiResponse }]
     });
   } catch (error) {
-    // ✅ Handle unexpected errors
+    // ✅ Handle connection/timeouts/unreachable endpoints
+    if (
+      error.message.includes("ETIMEDOUT") ||
+      error.message.includes("ECONNREFUSED") ||
+      error.message.includes("ENOTFOUND") ||
+      error.message.includes("EAI_AGAIN")
+    ) {
+      return res.status(503).json({
+        status: false,
+        error: "The server is busy, try again later."
+      });
+    }
+
+    // ✅ Generic fallback for other unexpected errors
     return res.status(500).json({
       status: false,
       error: "Error fetching AI response",
