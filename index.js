@@ -32,7 +32,7 @@ const endpointMap = {
   grok: endpoints[9],
   claude: endpoints[10],
   gpt5: endpoints[11],
-  image-stable: endpoints[12]
+  image_stable: endpoints[12]
 };
 
 // root route
