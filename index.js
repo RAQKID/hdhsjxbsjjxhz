@@ -95,11 +95,9 @@ app.get("/:model", async (req, res) => {
     }
 
     // ✅ Detect known busy/reject phrases
-    const busyMessages = [
-      "rejected: try again later!",
-      "server busy",
-      "please try again later.",
-      "the server is busy"
+    const busyMessages = [  
+      "Rejected: Try again later!",  
+      '{"status":true,"result":[{"response":"Rejected: Try again later!"}]}'  
     ];
 
     if (
