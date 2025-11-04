@@ -47,9 +47,7 @@ app.get("/:model", async (req, res) => {
 
   // Check if model exists
   const endpoint = endpointMap[model];
-  if (!endpoint) {
-    return res.redirect("/");
-  }
+  if (!endpoint) return res.redirect("/");
 
   // Validate prompt
   if (!prompt) {
@@ -62,15 +60,13 @@ app.get("/:model", async (req, res) => {
   }
 
   try {
-    const url = `${endpoint}?prompt=${encodeURIComponent(
-      prompt
-    )}&key=${process.env.KASTG_KEY}`;
+    const url = `${endpoint}?prompt=${encodeURIComponent(prompt)}&key=${process.env.KASTG_KEY}`;
 
     const response = await fetch(url);
     const data = await response.json();
 
-    // ✅ If API explicitly returns status false
-    if (data.status === false) {
+    // ✅ Handle invalid or missing `status`
+    if (!data || data.status === false || typeof data.status === "undefined") {
       return res.status(503).json({
         status: false,
         error: "The server is busy, try again later."
@@ -78,24 +74,23 @@ app.get("/:model", async (req, res) => {
     }
 
     // ✅ Normalize AI response
-    let aiResponse;
-    if (data?.result && Array.isArray(data.result) && data.result[0]?.response) {
-      aiResponse = data.result[0].response;
-    } else if (data?.response) {
-      aiResponse = data.response;
-    } else {
-      aiResponse = JSON.stringify(data);
-    }
+    let aiResponse =
+      data?.result?.[0]?.response ??
+      data?.response ??
+      JSON.stringify(data);
 
     // ✅ Detect “busy” or “rejected” messages
     const busyMessages = [
       "Rejected: Try again later!",
-      '{"status":true,"result":[{"response":"Rejected: Try again later!"}]}'
+      '{"status":true,"result":[{"response":"Rejected: Try again later!"}]}',
+      "Server Busy",
+      "Please try again later."
     ];
 
     if (
-      busyMessages.includes(aiResponse.trim()) ||
-      aiResponse.trim() === "Rejected: Try again later!"
+      busyMessages.some(msg =>
+        aiResponse.trim().toLowerCase().includes(msg.toLowerCase())
+      )
     ) {
       return res.status(503).json({
         status: false,
@@ -110,19 +105,15 @@ app.get("/:model", async (req, res) => {
     });
   } catch (error) {
     // ✅ Handle connection/timeouts/unreachable endpoints
-    if (
-      error.message.includes("ETIMEDOUT") ||
-      error.message.includes("ECONNREFUSED") ||
-      error.message.includes("ENOTFOUND") ||
-      error.message.includes("EAI_AGAIN")
-    ) {
+    const networkErrors = ["ETIMEDOUT", "ECONNREFUSED", "ENOTFOUND", "EAI_AGAIN"];
+    if (networkErrors.some(code => error.message.includes(code))) {
       return res.status(503).json({
         status: false,
         error: "The server is busy, try again later."
       });
     }
 
-    // ✅ Generic fallback for other unexpected errors
+    // ✅ Generic fallback for unexpected errors
     return res.status(500).json({
       status: false,
       error: "Error fetching AI response",
@@ -132,9 +123,7 @@ app.get("/:model", async (req, res) => {
 });
 
 // ✅ Catch-all redirect for any other routes
-app.use((req, res) => {
-  res.redirect("/");
-});
+app.use((req, res) => res.redirect("/"));
 
 app.listen(PORT, () => {
   console.log(`✅ Server running at http://localhost:${PORT}`);
