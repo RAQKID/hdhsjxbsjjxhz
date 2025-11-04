@@ -121,7 +121,7 @@ app.get("/:model", async (req, res) => {
     if (networkErrors.some(code => error.message.includes(code))) {
       return res.status(503).json({
         status: false,
-        error: "The server is busy, try again later."
+        error: "The server is having a errors, make a ticket in the Official Server and report this quickly."
       });
     }
 
