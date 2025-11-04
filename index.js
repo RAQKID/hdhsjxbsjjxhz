@@ -45,27 +45,23 @@ app.get("/:model", async (req, res) => {
   const { model } = req.params;
   const { prompt, key } = req.query;
 
-  // Check if model exists
   const endpoint = endpointMap[model];
   if (!endpoint) return res.redirect("/");
 
-  // Validate prompt
   if (!prompt) {
     return res.status(400).json({ status: false, error: "Missing prompt" });
   }
 
-  // Validate key
   if (!key || !keys.includes(key)) {
     return res.status(403).json({ status: false, error: "Invalid API key" });
   }
 
   try {
     const url = `${endpoint}?prompt=${encodeURIComponent(prompt)}&key=${process.env.KASTG_KEY}`;
-
     const response = await fetch(url);
     const data = await response.json();
 
-    // ✅ Handle invalid or missing `status`
+    // ✅ Handle direct false or missing status
     if (!data || data.status === false || typeof data.status === "undefined") {
       return res.status(503).json({
         status: false,
@@ -73,18 +69,37 @@ app.get("/:model", async (req, res) => {
       });
     }
 
-    // ✅ Normalize AI response
+    // ✅ Extract AI response
     let aiResponse =
       data?.result?.[0]?.response ??
       data?.response ??
       JSON.stringify(data);
 
-    // ✅ Detect “busy” or “rejected” messages
+    // ✅ Detect if aiResponse is actually JSON string with "status":"false"
+    try {
+      const parsed = JSON.parse(aiResponse);
+      if (
+        parsed &&
+        (parsed.status === false ||
+          parsed.status === "false" ||
+          parsed.error ||
+          parsed.message?.toLowerCase()?.includes("error"))
+      ) {
+        return res.status(503).json({
+          status: false,
+          error: "The server is busy, try again later."
+        });
+      }
+    } catch {
+      // ignore if not JSON
+    }
+
+    // ✅ Detect known busy/reject phrases
     const busyMessages = [
-      "Rejected: Try again later!",
-      '{"status":true,"result":[{"response":"Rejected: Try again later!"}]}',
-      "Server Busy",
-      "Please try again later."
+      "rejected: try again later!",
+      "server busy",
+      "please try again later.",
+      "the server is busy"
     ];
 
     if (
@@ -98,13 +113,12 @@ app.get("/:model", async (req, res) => {
       });
     }
 
-    // ✅ Return successful response
+    // ✅ Return success
     return res.json({
       status: true,
       result: [{ response: aiResponse }]
     });
   } catch (error) {
-    // ✅ Handle connection/timeouts/unreachable endpoints
     const networkErrors = ["ETIMEDOUT", "ECONNREFUSED", "ENOTFOUND", "EAI_AGAIN"];
     if (networkErrors.some(code => error.message.includes(code))) {
       return res.status(503).json({
@@ -113,7 +127,6 @@ app.get("/:model", async (req, res) => {
       });
     }
 
-    // ✅ Generic fallback for unexpected errors
     return res.status(500).json({
       status: false,
       error: "Error fetching AI response",
@@ -122,7 +135,6 @@ app.get("/:model", async (req, res) => {
   }
 });
 
-// ✅ Catch-all redirect for any other routes
 app.use((req, res) => res.redirect("/"));
 
 app.listen(PORT, () => {
