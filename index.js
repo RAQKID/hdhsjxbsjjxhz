@@ -55,6 +55,12 @@ app.get("/:model", async (req, res) => {
     return res.status(403).json({ status: false, error: "Invalid API key" });
   }
 
+  // ✅ Immediate lightweight response (prevents BDFD timeout)
+  res.status(200).json({
+    status: true,
+    result: [{ response: "🕓 Processing your request, please wait..." }]
+  });
+  
   try {
     const url = `${endpoint}?prompt=${encodeURIComponent(prompt)}&key=${process.env.KASTG_KEY}`;
     const response = await fetch(url);
