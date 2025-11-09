@@ -68,12 +68,6 @@ app.get("/:model", async (req, res) => {
       });
     }
 
-    // ✅ Immediate lightweight response (prevents BDFD timeout)
-  res.status(200).json({
-    status: true,
-    result: [{ response: "🕓 Processing your request, please wait..." }]
-  });
-  
     // ✅ Extract AI response
     let aiResponse =
       data?.result?.[0]?.response ??
