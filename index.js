@@ -20,7 +20,7 @@ const endpoints = (process.env.ENDPOINTS || "")
 
 // ✅ Map route names to endpoints
 const endpointMap = {
-  gpt4: endpoints[0],
+  error_networks: endpoints[0],
   cohere: endpoints[1],
   llama: endpoints[2],
   deepseek: endpoints[3],
@@ -31,13 +31,12 @@ const endpointMap = {
   popcat: endpoints[8],
   grok: endpoints[9],
   claude: endpoints[10],
-  gpt5: endpoints[11],
-  image_stable: endpoints[12]
+  gpt5: endpoints[11]
 };
 
 // ✅ Root route
 app.get("/", (req, res) => {
-  res.send("Go to https://discord.com/invite/fSYqDszJcy for more information.");
+  res.send("Go to https://discord.com/invite/fSYqDszJcy for API Keys and API Informations.");
 });
 
 // ✅ Dynamic routes
