@@ -31,7 +31,8 @@ const endpointMap = {
   popcat: endpoints[8],
   grok: endpoints[9],
   claude: endpoints[10],
-  gpt5: endpoints[11]
+  gpt5: endpoints[11],
+  stable_diff: endpoints[12]
 };
 
 // ✅ Root route
