@@ -21,7 +21,7 @@ const endpoints = (process.env.ENDPOINTS || "")
 // ✅ Map route names to endpoints
 const endpointMap = {
   error_networks: endpoints[0],
-  cohere: endpoints[1],
+  error_networks: endpoints[1],
   llama: endpoints[2],
   deepseek: endpoints[3],
   nemotron: endpoints[4],
@@ -32,7 +32,9 @@ const endpointMap = {
   grok: endpoints[9],
   claude: endpoints[10],
   gpt5: endpoints[11],
-  stable_diff: endpoints[12]
+  img_flux: endpoints[12],
+  img_turbo: endpoints[13],
+  img_gpt: endpoints[14]
 };
 
 // ✅ Root route
